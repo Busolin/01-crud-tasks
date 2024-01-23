@@ -7,7 +7,7 @@ declare module 'knex/types/tables' {
       id: string
       title: string
       description: string
-      complted_at: string
+      completed_at: string | null
       created_at: string
       updated_at: string
     }
