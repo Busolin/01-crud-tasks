@@ -76,6 +76,23 @@ export async function tasksRoutes(app: FastifyInstance) {
     reply.status(200).send({ id })
   })
 
+  app.delete('/:id', async (request, reply) => {
+    const getTaskParamsSchema = z.object({
+      id: z.string(),
+    })
+    const { id } = getTaskParamsSchema.parse(request.params)
+
+    const task = await knex('tasks').where({ id }).first()
+    if (!task) {
+      reply.status(404).send({ error: 'Task not found' })
+      return
+    }
+
+    await knex('tasks').where({ id }).delete()
+
+    reply.status(200).send({ id })
+  })
+
   app.post('/', async (request, reply) => {
     const createTaskSchema = z.object({
       title: z.string(),
