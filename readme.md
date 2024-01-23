@@ -24,12 +24,12 @@ Rotas:
     
     Ao criar uma task, os campos: `id`, `created_at`, `updated_at` e `completed_at` devem ser preenchidos automaticamente, conforme a orientação das propriedades acima.
     
-- [ ] `GET - /tasks`
+- [x] `GET - /tasks`
     Deve ser possível listar todas as tasks salvas no banco de dados.
     
     Também deve ser possível realizar uma busca, filtrando as tasks pelo `title` e `description`
     
-- [ ] `PUT - /tasks/:id`
+- [x] `PUT - /tasks/:id`
     Deve ser possível atualizar uma task pelo `id`.
     
     No `body` da requisição, deve receber somente o `title` e/ou `description` para serem atualizados.

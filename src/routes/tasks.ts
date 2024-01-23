@@ -3,14 +3,13 @@ import { knex } from '../database'
 import { z } from 'zod'
 import { randomUUID } from 'node:crypto'
 
-interface TaskQuery {
-  title?: string
-  description?: string
-}
-
 export async function tasksRoutes(app: FastifyInstance) {
   app.get('/', async (request) => {
-    const { title, description } = request.query as TaskQuery
+    const getTasksQuerySchema = z.object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+    })
+    const { title, description } = getTasksQuerySchema.parse(request.query)
 
     if (title) {
       const tasksFilteredByTitle = await knex('tasks').where(
@@ -33,6 +32,48 @@ export async function tasksRoutes(app: FastifyInstance) {
     const tasks = await knex('tasks').select()
 
     return { tasks }
+  })
+
+  app.put('/:id', async (request, reply) => {
+    const getTaskParamsSchema = z.object({
+      id: z.string(),
+    })
+    const { id } = getTaskParamsSchema.parse(request.params)
+
+    const getTaskBodySchema = z.object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+    })
+    const { title, description } = getTaskBodySchema.parse(request.body)
+
+    if (!title && !description) {
+      reply
+        .status(400)
+        .send({ error: 'You must provide at least one field to update' })
+      return
+    }
+
+    if (title === '' || description === '') {
+      reply
+        .status(400)
+        .send({ error: 'You must provide a valid value for the fields' })
+      return
+    }
+
+    const task = await knex('tasks').where({ id }).first()
+    if (!task) {
+      reply.status(404).send({ error: 'Task not found' })
+      return
+    }
+
+    await knex('tasks')
+      .where({ id })
+      .update({
+        title: title ?? task.title,
+        description: description ?? task.description,
+      })
+
+    reply.status(200).send({ id })
   })
 
   app.post('/', async (request, reply) => {
